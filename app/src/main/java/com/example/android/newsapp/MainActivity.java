@@ -10,7 +10,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -24,7 +23,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     public static final String LOG_TAG = MainActivity.class.getName();
     public static final String REQUEST_URL = "https://newsapi.org/v2/top-headlines?country=de&category=business&apiKey=5f99e4501411422a877e52d2cb8aa22e";
     private static final int News_Loader_ID = 1;
-
+    private SwipeRefreshLayout mSwipeRefreshLayout;
     /**
      * Adapter for the list of news
      */
@@ -37,7 +36,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     @Override
     public void onLoadFinished(Loader<List<News>> loader, List<News> news) {
-        // mAdapter.clear();
+         mAdapter.clear();
         if (news != null && !news.isEmpty()) {
             mAdapter.addAll(news);
             SwipeRefreshLayout swipeContainer = (SwipeRefreshLayout) findViewById(R.id.refresh);
@@ -48,19 +47,14 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     @Override
     public void onLoaderReset(Loader<List<News>> loader) {
         mAdapter.clear();
-        mAdapter.notifyDataSetChanged();
     }
-
-
-
-
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        SwipeRefreshLayout swipeContainer = (SwipeRefreshLayout) findViewById(R.id.refresh);
+
         // Find a reference to the {@link ListView} in the layout
         ListView newsListView = (ListView) findViewById(R.id.list);
         TextView mEmptyStateTextView = (TextView) findViewById(R.id.empty_view);
@@ -91,7 +85,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         }
 
 
-        // Create a new adapter that takes an empty list of earthquakes as input
+        // Create a new adapter that takes an empty list of news as input
         mAdapter = new NewsAdapter(this, new ArrayList<News>());
 
         // Set the adapter on the {@link ListView}
@@ -99,36 +93,30 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         newsListView.setAdapter(mAdapter);
 
         // Set an item click listener on the ListView, which sends an intent to a web browser
-        // to open a website with more information about the selected earthquake.
+        // to open a website with more information about the selected news.
         newsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                // Find the current earthquake that was clicked on
+                // Find the current news that was clicked on
                 News currentNews = mAdapter.getItem(position);
 
                 // Convert the String URL into a URI object (to pass into the Intent constructor)
                 Uri newsUri = Uri.parse(currentNews.getUrl());
 
-                // Create a new intent to view the earthquake URI
+                // Create a new intent to view the news URI
                 Intent websiteIntent = new Intent(Intent.ACTION_VIEW, newsUri);
 
                 // Send the intent to launch a new activity
                 startActivity(websiteIntent);
             }
         });
-        /*
-         * Sets up a SwipeRefreshLayout.OnRefreshListener that is invoked when the user
-         * performs a swipe-to-refresh gesture.
-         */
-        swipeContainer.setOnRefreshListener(
-                new SwipeRefreshLayout.OnRefreshListener() {
-                    @Override
-                    public void onRefresh() {
-                        Log.i(LOG_TAG, "onRefresh called from SwipeRefreshLayout");
+        mSwipeRefreshLayout = findViewById(R.id.refresh);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                getLoaderManager().restartLoader(News_Loader_ID, null, MainActivity.this);
+            }
+        });
 
-                        LoaderManager loaderManager = getLoaderManager();
-                        loaderManager.restartLoader(News_Loader_ID, null, MainActivity.this);
-                        }
-                    });
-                    }
-                }
+    }
+}

@@ -152,7 +152,7 @@ public final class QueryUtils  {
                 // Create a new {@link News} object with the title, summary, date, author, url from the JSON response.
                 News newsSum = new News(source, title, description, date, author, url);
                // News newsSum = new News("eins", "eins", "eins", "eins", "eins");
-                // Add the new {@link News} to the list of earthquakes.
+                // Add the new {@link News} to the list of news.
                 news.add(newsSum);
             }}
 
@@ -163,7 +163,7 @@ public final class QueryUtils  {
             Log.e("QueryUtils", "Problem parsing the News JSON results", e);
         }
 
-        // Return the list of earthquakes
+        // Return the list of news
         return news;
     }
     /**
