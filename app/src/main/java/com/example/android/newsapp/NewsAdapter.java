@@ -11,6 +11,7 @@ import android.widget.TextView;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.StringTokenizer;
 
 public class NewsAdapter extends ArrayAdapter<News>{
     public NewsAdapter(Context context, List<News> news) {
@@ -55,25 +56,42 @@ public class NewsAdapter extends ArrayAdapter<News>{
             newAuthor = author;
         }
 
+        String summary = currentNews.getSummary();
+        String newSummary = "";
+        if (summary == "null") {
+
+            newSummary = "no text available";
+        } else {
+            newSummary = summary;
+        }
+
         String source = currentNews.getSource();
-        TextView sourceView =(TextView) listItemView.findViewById(R.id.source_text);
+        TextView sourceView = listItemView.findViewById(R.id.source_text);
         sourceView.setText(source);
 
         // Get the original Title string from the News object, and show it in the Textview
         String title = currentNews.getTitle();
-        TextView titleView = (TextView) listItemView.findViewById(R.id.title_text);
+        TextView titleView = listItemView.findViewById(R.id.title_text);
         titleView.setText(title);
         // Get the original Summary string from the News object, and show it in the Textview
-        String summary = currentNews.getSummary();
-        TextView summaryView = (TextView) listItemView.findViewById(R.id.text_text);
-        summaryView.setText(summary);
+
+        TextView summaryView = listItemView.findViewById(R.id.text_text);
+        summaryView.setText(newSummary);
         // Get the original Author string from the News object, and show it in the Textview
 
-        TextView authorView = (TextView) listItemView.findViewById(R.id.author_text_view);
+        TextView authorView = listItemView.findViewById(R.id.author_text_view);
         authorView.setText(newAuthor);
         // Get the original Date string from the News object, and show it in the Textview
         String date = currentNews.getDate();
-        TextView dateView = (TextView) listItemView.findViewById(R.id.date_text_view);
+
+        // Split String to get rid of letters
+        StringTokenizer st = new StringTokenizer(date, "T");
+        String day = st.nextToken();
+        String time = st.nextToken();
+        time = time.replace("Z", "");
+        date = day + " " + time;
+
+        TextView dateView = listItemView.findViewById(R.id.date_text_view);
         dateView.setText(date);
         return listItemView;
 }}
