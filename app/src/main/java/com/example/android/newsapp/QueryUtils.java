@@ -1,11 +1,13 @@
 package com.example.android.newsapp;
 
+import android.nfc.Tag;
 import android.text.TextUtils;
 import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONStringer;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -111,7 +113,7 @@ public final class QueryUtils  {
 
         // Create an empty ArrayList that we can start adding News to
         List<News> news = new ArrayList<>();
-
+        String tag = "TAGS";
         // Try to parse the JSON response string. If there's a problem with the way the JSON
         // is formatted, a JSONException exception object will be thrown.
         // Catch the exception so the app doesn't crash, and print the error message to the logs.
@@ -120,39 +122,45 @@ public final class QueryUtils  {
             // Create a JSONObject from the JSON response string
             JSONObject baseJsonResponse = new JSONObject(newsJSON);
 
-            // Extract the JSONArray associated with the key called "features",
+            // Extract the JSONArray associated with the key called "response",
             // which represents a list of articles.
-            JSONArray newsArray = baseJsonResponse.getJSONArray("articles");
+            JSONObject newsArray2 = baseJsonResponse.getJSONObject("response");
+            JSONArray newsArray = newsArray2.getJSONArray("results");
 
 
-            // For each articel in the newsArray, create an {@link News} object
+            // For each results in the newsArray, create an {@link News} object
             for (int i = 0; i < newsArray.length(); i++) {
 
                 // Get a single news at position i within the list of news
                 JSONObject currentNews = newsArray.getJSONObject(i);
-                JSONObject sourceNews = currentNews.getJSONObject("source");
 
-                String source = sourceNews.getString("name");
-
+                // Extract the value for the key called "sectionName"
+                String section = currentNews.getString("sectionName");
                 // Extract the value for the key called "title"
-                String title = currentNews.getString("title");
+                String title = currentNews.getString("webTitle");
 
-                // Extract the value for the key called "description"
-                String description = currentNews.getString("description");
+                // Extract the value for the key called "fields" to get summary of the news
+                JSONObject trailText = currentNews.getJSONObject("fields");
+
+                String description = trailText.getString("trailText");
 
                 // Extract the value for the key called "publishedAt"
-                String date = currentNews.getString("publishedAt");
+                String date = currentNews.getString("webPublicationDate");
 
                 // Extract the value for the key called "url"
-                String url = currentNews.getString("url");
+                String url = currentNews.getString("webUrl");
 
-                // Extract the value for the key called "author"
-                String author = currentNews.getString("author");
-
+                JSONArray tags = currentNews.getJSONArray("tags");
+                String authorName = "";
+                if (!tags.isNull(0)) {
+                    JSONObject currentTag = tags.getJSONObject(0);
+                    //Author name
+                    authorName = !currentTag.isNull("webTitle") ? currentTag.getString("webTitle") : "";
+                }
+                String author = authorName;
                 // Create a new {@link News} object with the title, summary, date, author, url from the JSON response.
-                News newsSum = new News(source, title, description, date, author, url);
-               // News newsSum = new News("eins", "eins", "eins", "eins", "eins");
-                // Add the new {@link News} to the list of news.
+                News newsSum = new News(section, title, description, date, author, url);
+
                 news.add(newsSum);
             }}
 
@@ -189,3 +197,39 @@ public final class QueryUtils  {
         return news;
     }
 }
+/*          SAVING THIS PART FOR NEWS STAGE 2
+// Extract the JSONArray associated with the key called "features",
+            // which represents a list of articles.
+            JSONArray newsArray = baseJsonResponse.getJSONArray("articles");
+
+
+            // For each articel in the newsArray, create an {@link News} object
+            for (int i = 0; i < newsArray.length(); i++) {
+
+                // Get a single news at position i within the list of news
+                JSONObject currentNews = newsArray.getJSONObject(i);
+                JSONObject sourceNews = currentNews.getJSONObject("source");
+
+                String source = sourceNews.getString("name");
+
+                // Extract the value for the key called "title"
+                String title = currentNews.getString("title");
+
+                // Extract the value for the key called "description"
+                String description = currentNews.getString("description");
+
+                // Extract the value for the key called "publishedAt"
+                String date = currentNews.getString("publishedAt");
+
+                // Extract the value for the key called "url"
+                String url = currentNews.getString("url");
+
+                // Extract the value for the key called "author"
+                String author = currentNews.getString("author");
+
+                // Create a new {@link News} object with the title, summary, date, author, url from the JSON response.
+                News newsSum = new News(source, title, description, date, author, url);
+               // News newsSum = new News("eins", "eins", "eins", "eins", "eins");
+                // Add the new {@link News} to the list of news.
+                news.add(newsSum);
+ */
