@@ -2,4 +2,5 @@
     <string name="app_name">NewsApp</string>
     <string name="no_internet_connection">no_internet_connection</string>
     <string name="no_news">no_news</string>
+    <string name="no_json_results">Problem retrieving JSON results</string>
 </resources>

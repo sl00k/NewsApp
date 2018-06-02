@@ -1,5 +1,6 @@
 package com.example.android.newsapp;
 
+import android.annotation.SuppressLint;
 import android.app.LoaderManager;
 import android.content.Context;
 import android.content.Intent;
@@ -20,10 +21,14 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
+
 
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<News>> {
     public static final String LOG_TAG = MainActivity.class.getName();
-    private static final String REQUEST_URL = "https://content.guardianapis.com/search?show-fields=trailText&show-tags=contributor&api-key=9e09481e-2dce-4b96-8f32-27ceead57035";
+    private static final String BASE_URL = "https://content.guardianapis.com/search?show-fields=trailText&show-tags=contributor&api-key=";
+    String apiKey = BuildConfig.THE_GUARDIAN_API_KEY;
+    String REQUEST_URL = BASE_URL + apiKey;
     //public static final String REQUEST_URL = "https://newsapi.org/v2/top-headlines?country=de&category=business&apiKey=5f99e4501411422a877e52d2cb8aa22e";
     private static final int News_Loader_ID = 1;
     private SwipeRefreshLayout mSwipeRefreshLayout;
@@ -36,23 +41,21 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     @Override
     public Loader<List<News>> onCreateLoader(int i, Bundle bundle) {
-        // Find a reference to the {@link ListView} in the layout
-        ListView newsListView = findViewById(R.id.list);
+
+
         mEmptyStateTextView = findViewById(R.id.empty_view);
         // falls keine daten vorhanden sind
+        ListView newsListView = findViewById(R.id.list);
         newsListView.setEmptyView(mEmptyStateTextView);
         return new NewsLoader(this, REQUEST_URL);
 
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onLoadFinished(Loader<List<News>> loader, List<News> news) {
-         mAdapter.clear();
+        mAdapter.clear();
         SwipeRefreshLayout swipeContainer = findViewById(R.id.refresh);
-
-        if (mEmptyStateTextView.getText().toString().equalsIgnoreCase("no_news")) {
-            mEmptyStateTextView.setText(R.string.no_news);
-        }
 
         if (news != null && !news.isEmpty()) {
             mAdapter.addAll(news);
@@ -61,8 +64,37 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             ProgressBar progressBar;
             progressBar = findViewById(R.id.progress_bar);
             progressBar.setVisibility(View.GONE);
+        } else {
+            // Get a reference to the ConnectivityManager to check state of network connectivity
+            ConnectivityManager connMgr = (ConnectivityManager)
+                    getSystemService(Context.CONNECTIVITY_SERVICE);
+
+            // Get details on the currently active default data network
+            NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+
+            // If there is a network connection, fetch data
+            if (networkInfo != null && networkInfo.isConnected()) {
+
+
+                mEmptyStateTextView.setText(R.string.no_json_results);
+            } else {
+                // Otherwise, display error
+
+                mEmptyStateTextView = findViewById(R.id.empty_view);
+                // Update empty state with no connection error message
+                mEmptyStateTextView.setText(R.string.no_internet_connection);
+            }
+
+
         }
+        // hide loading indicator so error message will be visible
+        View loadingIndicator = findViewById(R.id.progress_bar);
+        loadingIndicator.setVisibility(View.GONE);
         swipeContainer.setRefreshing(false);
+        ProgressBar progressBar;
+        progressBar = findViewById(R.id.progress_bar);
+        progressBar.setVisibility(View.GONE);
+
     }
 
     @Override
@@ -101,10 +133,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        // Find a reference to the {@link ListView} in the layout
         ListView newsListView = findViewById(R.id.list);
-        TextView mEmptyStateTextView = findViewById(R.id.empty_view);
+
 
         testConnection();
 

@@ -25,6 +25,8 @@ public final class QueryUtils  {
     /**
      * Returns new URL object from the given string URL.
      */
+    public static final int ConnectTimeout = 15000;
+    public static final int ReadTimeout = 10000;
     private static URL createUrl(String stringUrl) {
         URL url = null;
         try {
@@ -49,8 +51,8 @@ public final class QueryUtils  {
         InputStream inputStream = null;
         try {
             urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setReadTimeout(10000 /* milliseconds */);
-            urlConnection.setConnectTimeout(15000 /* milliseconds */);
+            urlConnection.setReadTimeout(ReadTimeout /* milliseconds */);
+            urlConnection.setConnectTimeout(ConnectTimeout /* milliseconds */);
             urlConnection.setRequestMethod("GET");
             urlConnection.connect();
 
@@ -113,7 +115,6 @@ public final class QueryUtils  {
 
         // Create an empty ArrayList that we can start adding News to
         List<News> news = new ArrayList<>();
-        String tag = "TAGS";
         // Try to parse the JSON response string. If there's a problem with the way the JSON
         // is formatted, a JSONException exception object will be thrown.
         // Catch the exception so the app doesn't crash, and print the error message to the logs.
