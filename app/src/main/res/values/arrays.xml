@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="settings_section_labels">
+        <item>football</item>
+        <item>business</item>
+        <item>technology</item>
+        <item>environment</item>
+        <item>science</item>
+    </string-array>
+
+    <string-array name="settings_section_values">
+        <item>football</item>
+        <item>business</item>
+        <item>technology</item>
+        <item>environment</item>
+        <item>science</item>
+    </string-array>
+</resources>
